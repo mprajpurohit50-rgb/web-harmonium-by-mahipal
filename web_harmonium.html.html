@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Harmonium</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#100d0d; --panel:#0e0d0d; --line:#4c351d; --text:#eeeae6; --muted:#a7a19c;
+  --gold:#ffb900; --teal:#05c6b2; --orange:#ff9700;
+}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:radial-gradient(circle at 50% -20%,#26201d 0,#151211 48%,#0d0b0b 100%);
+}
+.app{width:min(1900px,100%); margin:auto; padding:24px 22px 40px}
+.instrument-card{
+  border:1px solid #744713; border-radius:34px; padding:22px 36px 38px;
+  background:linear-gradient(180deg,#1c1918,#100e0d); box-shadow:0 15px 45px #0008;
+}
+.top-line{height:1px;background:#3b2c20;margin:0 0 14px}
+.keyboard-frame{
+  min-height:290px; border:1px solid #393331; border-radius:19px;
+  background:linear-gradient(180deg,#282321,#0d0c0c);
+  display:flex; align-items:center; justify-content:center; padding:24px 5.5%;
+  overflow:hidden;
+}
+.keyboard{position:relative; height:190px; display:flex; width:min(1400px,100%); user-select:none}
+.key.white{
+  position:relative; flex:1; min-width:42px; height:190px; margin-right:2px;
+  border:1px solid #aaa; border-radius:8px; background:linear-gradient(#fafafa,#e4e3e2);
+  color:#9b3e00; box-shadow:0 5px 0 #b8b8b8,0 8px 14px #0007;
+  cursor:pointer; touch-action:none;
+}
+.key.white.active{background:linear-gradient(#d8d8d8,#bdbdbd); transform:translateY(3px); box-shadow:0 2px 0 #999}
+.key .pc{position:absolute; left:0; right:0; top:13px; text-align:center; font-size:18px;font-weight:800}
+.key .swaram{position:absolute; left:0; right:0; bottom:75px; text-align:center; font-size:26px;font-weight:800}
+.key .note{position:absolute; left:12px; right:12px; bottom:12px; height:30px; display:flex; align-items:center;justify-content:center;border-radius:6px;background:#81a5a3;color:#00e5d2;font-weight:800}
+.key.black{
+  position:absolute; z-index:4; top:0; height:120px; width:48px; transform:translateX(-50%);
+  border:1px solid #222;border-radius:0 0 9px 9px;background:linear-gradient(#4a4846,#171616);
+  color:#f3f0ee; box-shadow:0 7px 10px #000b;cursor:pointer;touch-action:none
+}
+.key.black.active{background:linear-gradient(#66625f,#292725);transform:translateX(-50%) translateY(3px)}
+.key.black .pc{position:absolute;top:12px;left:0;right:0;text-align:center;font-size:16px;font-weight:800}
+.key.black .swaram{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#ffbf00;font-size:21px;font-weight:900}
+.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.control-card{
+  min-height:347px;border:1px solid #4a423b;border-radius:20px;background:linear-gradient(145deg,#111010,#0b0a0a);
+  padding:38px 36px 26px;box-shadow:0 12px 30px #0005
+}
+.control-head{display:flex;align-items:center;gap:15px}
+.control-head .icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:28px;font-weight:900}
+.volume-card .icon{background:#ff9700}.reverb-card .icon{background:#00bda9}.transpose-card .icon{background:#ff9700}
+h2{margin:0;font-size:22px}.control-head p{margin:2px 0 0;color:#a9a29c;font-weight:700;font-size:16px}
+.big-value{text-align:center;font-size:38px;font-weight:900;margin:62px 0 24px}
+.volume-card .big-value{color:#ffc400}.reverb-card .big-value{color:#00e1cb}.transpose-card .big-value{color:#ff3d6d}
+#volume{width:100%;accent-color:#d79516;cursor:pointer}
+.range-caption{text-align:center;color:#a7a19c;font-size:17px;margin-top:14px}
+.switch{display:block;width:76px;height:40px;margin:0 auto;position:relative}
+.switch input{display:none}.switch span{position:absolute;inset:0;border-radius:30px;background:#8e8b88;border:3px solid #d49a22}
+.switch span:before{content:"";position:absolute;width:30px;height:30px;top:2px;left:2px;background:#f5f5f5;border-radius:50%;transition:.2s}
+.switch input:checked+span{background:#cf9118}.switch input:checked+span:before{transform:translateX(36px)}
+.stepper{display:flex;align-items:center;justify-content:center;gap:48px}.stepper button{width:50px;height:50px;border:1px solid #423b35;border-radius:9px;background:#0b0a09;color:#aaa;font-size:30px;cursor:pointer}.stepper button:hover{background:#211e1c;color:white}.stepper>div{text-align:center}.stepper strong{display:block;font-size:20px}.stepper small{color:#aaa;font-size:15px}
+.status{text-align:center;color:#9d9690;margin:24px 0 10px}.load-button{display:block;margin:auto;border:1px solid #79531f;background:#2b2113;color:#ffc400;border-radius:10px;padding:12px 25px;font-weight:800;font-size:16px;cursor:pointer}.load-button:hover{background:#3b2b18}.hint{text-align:center;color:#817a74;font-size:14px}
+@media(max-width:900px){.controls{grid-template-columns:1fr}.keyboard-frame{padding:20px 2%;overflow-x:auto;justify-content:flex-start}.keyboard{min-width:950px}.instrument-card{padding:15px}.app{padding:12px}.control-card{min-height:280px}.big-value{margin:35px 0 20px}}
+
+.creator{
+  text-align:center;
+  margin-top:28px;
+  color:#a7a19c;
+  font-size:16px;
+  letter-spacing:.3px;
+}
+.creator strong{
+  color:#e8b13a;
+}
+
+</style>
+</head>
+<body>
+  <main class="app">
+    <section class="instrument-card">
+      <div class="top-line"></div>
+      <div class="keyboard-frame">
+        <div id="keyboard" class="keyboard" aria-label="Harmonium keyboard"></div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <article class="control-card volume-card">
+        <div class="control-head">
+          <span class="icon">⌁</span>
+          <div><h2>Volume</h2><p>Alt+↑↓</p></div>
+        </div>
+        <div id="volumeValue" class="big-value">80%</div>
+        <input id="volume" type="range" min="0" max="100" value="80">
+        <div class="range-caption">High</div>
+      </article>
+
+      <article class="control-card reverb-card">
+        <div class="control-head">
+          <span class="icon">☷</span>
+          <div><h2>Reverb</h2><p>Ctrl+Alt+R</p></div>
+        </div>
+        <div id="reverbValue" class="big-value">ON</div>
+        <label class="switch">
+          <input id="reverb" type="checkbox" checked>
+          <span></span>
+        </label>
+        <div class="range-caption">Spatial</div>
+      </article>
+
+      <article class="control-card transpose-card">
+        <div class="control-head">
+          <span class="icon">♫</span>
+          <div><h2>Transpose</h2><p>Ctrl+Alt+←→</p></div>
+        </div>
+        <div id="transposeNote" class="big-value">C</div>
+        <div class="stepper">
+          <button id="transposeDown">−</button>
+          <div>
+            <strong id="transposeValue">0</strong>
+            <small>Semitones</small>
+          </div>
+          <button id="transposeUp">+</button>
+        </div>
+        <div class="range-caption">−11 to +11</div>
+      </article>
+    </section>
+
+    <div id="status" class="status">Press “Load Harmonium” to start the sound.</div>
+    <button id="loadButton" class="load-button">Load Harmonium</button>
+    <footer class="creator">Created by <strong>Mahipal Singh Rajpurohit</strong></footer>
+    <p class="hint">Computer keyboard: <b>E R T Y U I O P</b> • Black keys: <b>4 5 7 8 9</b></p>
+  </main>
+<script>
+const SAMPLE_URL = "https://rajaramaniyer.github.io/harmonium-kannan-orig.wav";
+const REVERB_URL = "https://rajaramaniyer.github.io/reverb.wav";
+
+let ctx=null, sample=null, gain=null, convolver=null, reverbOn=true, transpose=0;
+const active={};
+const notes = [
+  ["s","Ṃ","C"],["a","Ṃ","C#"],["`","P̣","D"],["q","Ḍ","D#"],["w","Ṇ","E"],
+  ["e","S","F"],["4","R","F#"],["r","R","G"],["5","G","G#"],["t","G","A"],
+  ["y","M","A#"],["7","M","B"],["u","P","C"],["8","D","C#"],["i","D","D"],
+  ["9","N","D#"],["o","N","E"],["p","Ṡ","F"],["-","Ṙ","F#"],["[","Ṙ","G"],
+  ["=","Ġ","G#"],["]","Ġ","A"],["\\","Ṁ","A#"],["'","Ṁ","B"],[";","Ṗ","C"]
+];
+const midiByKey={s:53,a:54,"`":55,"1":56,q:57,"2":58,w:59,e:60,"4":61,r:62,"5":63,t:64,y:65,"7":66,u:67,"8":68,i:69,"9":70,o:71,p:72,"-":73,"[":74,"=":75,"]":76,"\\":77,"'":78,";":79};
+
+function buildKeyboard(){
+  const kb=document.getElementById("keyboard");
+  const whites=notes.filter((_,i)=>![1,3,6,8,10,13,15,18,20,22].includes(i));
+  const blackPositions=[1,3,6,8,10,13,15,18,20,22];
+  notes.forEach((n,i)=>{
+    const key=document.createElement("div");
+    const black=blackPositions.includes(i);
+    key.className="key "+(black?"black":"white");
+    key.dataset.key=n[0]; key.dataset.midi=midiByKey[n[0]]||60;
+    key.innerHTML=`<div class="pc">${n[0]}</div><div class="swaram">${n[1]}</div>${black?"":`<div class="note">${n[2]}</div>`}`;
+    if(black){
+      // place black key over the gap after the preceding white key
+      const whiteIndex=notes.slice(0,i).filter((_,j)=>!blackPositions.includes(j)).length;
+      key.style.left=`${(whiteIndex)*100/(whites.length)}%`;
+    }
+    key.addEventListener("pointerdown",e=>{e.preventDefault();noteOn(key.dataset.midi,key);});
+    key.addEventListener("pointerup",e=>{e.preventDefault();noteOff(key.dataset.midi,key);});
+    key.addEventListener("pointerleave",e=>{if(e.buttons) noteOff(key.dataset.midi,key);});
+    kb.appendChild(key);
+  });
+}
+function ensureContext(){
+  if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==="suspended") ctx.resume();
+}
+async function loadAudio(){
+  ensureContext();
+  const status=document.getElementById("status");
+  status.textContent="Loading harmonium sound…";
+  try{
+    const [a,b]=await Promise.all([fetch(SAMPLE_URL),fetch(REVERB_URL)]);
+    sample=await ctx.decodeAudioData(await a.arrayBuffer());
+    const rev=await ctx.decodeAudioData(await b.arrayBuffer());
+    gain=ctx.createGain(); gain.gain.value=.8; gain.connect(ctx.destination);
+    convolver=ctx.createConvolver(); convolver.buffer=rev; gain.connect(convolver); convolver.connect(ctx.destination);
+    applyReverb();
+    status.textContent="Harmonium ready — play with mouse or keyboard.";
+    document.getElementById("loadButton").textContent="Loaded ✓";
+  }catch(err){
+    console.error(err);
+    status.textContent="Sound could not be loaded. Please run with internet access.";
+  }
+}
+function applyReverb(){
+  if(!gain||!convolver)return;
+  try{gain.disconnect();}catch(e){}
+  gain.connect(ctx.destination);
+  if(reverbOn)gain.connect(convolver);
+}
+function noteOn(midi,el){
+  if(!sample||!gain)return;
+  ensureContext();
+  if(active[midi])return;
+  const src=ctx.createBufferSource();
+  src.buffer=sample; src.loop=true; src.loopStart=.5; src.detune.value=(midi+transpose-60)*100;
+  src.connect(gain); src.start();
+  active[midi]={src,el};
+  el?.classList.add("active");
+}
+function noteOff(midi,el){
+  const x=active[midi]; if(!x)return;
+  try{x.src.stop();}catch(e){}
+  x.el?.classList.remove("active"); delete active[midi];
+}
+document.addEventListener("keydown",e=>{
+  if(e.repeat)return;
+  const k=e.key;
+  if(midiByKey[k]!==undefined){e.preventDefault();const el=[...document.querySelectorAll(".key")].find(x=>x.dataset.key===k);noteOn(midiByKey[k],el);}
+  if(e.altKey&&e.key==="ArrowUp"){document.getElementById("volume").value=Math.min(100,+document.getElementById("volume").value+5);updateVolume();}
+  if(e.altKey&&e.key==="ArrowDown"){document.getElementById("volume").value=Math.max(0,+document.getElementById("volume").value-5);updateVolume();}
+  if(e.ctrlKey&&e.altKey&&e.key.toLowerCase()==="r"){document.getElementById("reverb").click();}
+  if(e.ctrlKey&&e.altKey&&e.key==="ArrowLeft")changeTranspose(-1);
+  if(e.ctrlKey&&e.altKey&&e.key==="ArrowRight")changeTranspose(1);
+});
+document.addEventListener("keyup",e=>{if(midiByKey[e.key]!==undefined)noteOff(midiByKey[e.key]);});
+function updateVolume(){const v=+document.getElementById("volume").value;document.getElementById("volumeValue").textContent=v+"%";if(gain)gain.gain.value=v/100;localStorage.setItem("harmonium.volume",v);}
+function changeTranspose(n){
+  transpose=Math.max(-11,Math.min(11,transpose+n));
+  document.getElementById("transposeValue").textContent=transpose>0?"+"+transpose:transpose;
+  const names=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];document.getElementById("transposeNote").textContent=names[(transpose+12)%12];
+  localStorage.setItem("harmonium.transpose",transpose);
+}
+document.getElementById("loadButton").onclick=loadAudio;
+document.getElementById("volume").oninput=updateVolume;
+document.getElementById("reverb").onchange=e=>{reverbOn=e.target.checked;document.getElementById("reverbValue").textContent=reverbOn?"ON":"OFF";applyReverb();};
+document.getElementById("transposeDown").onclick=()=>changeTranspose(-1);
+document.getElementById("transposeUp").onclick=()=>changeTranspose(1);
+(function init(){
+  buildKeyboard();
+  const v=localStorage.getItem("harmonium.volume");if(v!==null)document.getElementById("volume").value=v;
+  const t=localStorage.getItem("harmonium.transpose");if(t!==null)transpose=+t;
+  updateVolume(); changeTranspose(0);
+})();
+
+</script>
+</body>
+</html>
